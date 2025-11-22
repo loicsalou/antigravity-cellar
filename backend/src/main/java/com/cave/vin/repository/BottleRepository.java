@@ -1,0 +1,15 @@
+package com.cave.vin.repository;
+
+import com.cave.vin.domain.Bottle;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface BottleRepository extends JpaRepository<Bottle, Long>, JpaSpecificationExecutor<Bottle> {
+    List<Bottle> findByRackId(Long rackId);
+
+    List<Bottle> findByWineId(Long wineId);
+}

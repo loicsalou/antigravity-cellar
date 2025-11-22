@@ -1,0 +1,25 @@
+# IDEs
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Backend (Java/Maven)
+backend/target/
+backend/**/*.class
+backend/*.log
+
+# Frontend (Angular/Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.editorconfig
+frontend/.gitignore
+frontend/package-lock.json
+
+# Docker
+.env
+
+# Misc
+*.log
+tmp/
