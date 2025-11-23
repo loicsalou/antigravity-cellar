@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
 
 interface DashboardStats {
     totalBottles: number;
     bottlesByRegion: { [key: string]: number };
-    bottlesByAppellation: { [key: string]: number };
+    regionAppellationStats: { [region: string]: { [appellation: string]: number } };
     bottlesByColor: { [key: string]: number };
     mostExpensiveBottles: any[];
     oldestBottles: any[];
@@ -15,7 +14,7 @@ interface DashboardStats {
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule],
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
@@ -23,10 +22,14 @@ export class DashboardComponent implements OnInit {
     loading = true;
     error: string | null = null;
 
-    topAppellations: { name: string, count: number }[] = [];
-    otherAppellations: { name: string, count: number }[] = [];
+    topRegions: { name: string, count: number }[] = [];
+    otherRegions: { name: string, count: number }[] = [];
     othersCount = 0;
-    showOthersPopup = false;
+
+    // Popup state
+    showPopup = false;
+    popupTitle = '';
+    popupItems: { name: string, count: number }[] = [];
 
     constructor(private http: HttpClient) { }
 
@@ -34,7 +37,7 @@ export class DashboardComponent implements OnInit {
         this.http.get<DashboardStats>('/api/dashboard').subscribe({
             next: (data) => {
                 this.stats = data;
-                this.processAppellations();
+                this.processRegions();
                 this.loading = false;
             },
             error: (err) => {
@@ -45,22 +48,53 @@ export class DashboardComponent implements OnInit {
         });
     }
 
-    processAppellations() {
-        if (!this.stats || !this.stats.bottlesByAppellation) return;
+    processRegions() {
+        if (!this.stats) return;
 
-        const appellations = Object.entries(this.stats.bottlesByAppellation)
+        const regions = Object.entries(this.stats.bottlesByRegion)
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count);
 
-        if (appellations.length > 7) {
-            this.topAppellations = appellations.slice(0, 7);
-            this.otherAppellations = appellations.slice(7);
-            this.othersCount = this.otherAppellations.reduce((sum, r) => sum + r.count, 0);
+        if (regions.length > 10) {
+            this.topRegions = regions.slice(0, 10);
+            this.otherRegions = regions.slice(10);
+            this.othersCount = this.otherRegions.reduce((sum, r) => sum + r.count, 0);
         } else {
-            this.topAppellations = appellations;
-            this.otherAppellations = [];
+            this.topRegions = regions;
+            this.otherRegions = [];
             this.othersCount = 0;
         }
+    }
+
+    openRegionPopup(regionName: string) {
+        if (!this.stats || !this.stats.regionAppellationStats[regionName]) return;
+
+        this.popupTitle = `Appellations - ${regionName}`;
+        this.popupItems = Object.entries(this.stats.regionAppellationStats[regionName])
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+        this.showPopup = true;
+    }
+
+    openOthersPopup() {
+        if (!this.stats) return;
+
+        this.popupTitle = 'Appellations - Autres Régions';
+        const aggregatedAppellations: { [key: string]: number } = {};
+
+        this.otherRegions.forEach(region => {
+            const appStats = this.stats!.regionAppellationStats[region.name];
+            if (appStats) {
+                Object.entries(appStats).forEach(([app, count]) => {
+                    aggregatedAppellations[app] = (aggregatedAppellations[app] || 0) + count;
+                });
+            }
+        });
+
+        this.popupItems = Object.entries(aggregatedAppellations)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+        this.showPopup = true;
     }
 
     getBadgeColor(color: string): string {
