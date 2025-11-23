@@ -10,19 +10,30 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for development/API usage
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/assets/**", "/*.js", "/*.css", "/*.ico").permitAll() // Static
-                                                                                                                    // resources
-                        .requestMatchers("/api/user").permitAll() // Allow checking user status
-                        .requestMatchers("/api/**").authenticated() // Protect API
-                        .anyRequest().permitAll())
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("http://localhost:4200/", true) // Redirect to frontend after login
-                );
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable()) // Disable CSRF for development/API usage
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/", "/index.html", "/assets/**", "/*.js", "/*.css",
+                                                                "/*.ico")
+                                                .permitAll() // Static
+                                                             // resources
+                                                .requestMatchers("/api/user").permitAll() // Allow checking user status
+                                                .requestMatchers("/api/**").authenticated() // Protect API
+                                                .anyRequest().permitAll())
+                                .oauth2Login(oauth2 -> oauth2
+                                                .defaultSuccessUrl("http://localhost:4200/", true) // Redirect to
+                                                                                                   // frontend after
+                                                                                                   // login
+                                )
+                                .logout(logout -> logout
+                                                .logoutUrl("/api/logout")
+                                                .logoutSuccessHandler((request, response, authentication) -> {
+                                                        response.setStatus(200);
+                                                })
+                                                .invalidateHttpSession(true)
+                                                .deleteCookies("JSESSIONID"));
+                return http.build();
+        }
 }
