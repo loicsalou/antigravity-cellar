@@ -20,6 +20,13 @@ export class BottleListComponent implements OnInit {
     searchVintage: number | null = null;
     searchColor = '';
 
+    // Pagination
+    currentPage: number = 0;
+    pageSize: number = 10;
+    totalItems: number = 0;
+    totalPages: number = 0;
+    pageSizes: number[] = [5, 10, 15, 20, 25];
+
     constructor(private bottleService: BottleService) { }
 
     ngOnInit(): void {
@@ -28,14 +35,19 @@ export class BottleListComponent implements OnInit {
 
     loadBottles(): void {
         this.loading = true;
-        const params: any = {};
-        if (this.searchQuery) params.query = this.searchQuery;
-        if (this.searchVintage) params.vintage = this.searchVintage;
-        if (this.searchColor) params.color = this.searchColor;
+        this.error = '';
 
-        this.bottleService.getAllBottles(params).subscribe({
-            next: (data) => {
-                this.bottles = data;
+        this.bottleService.getAllBottles({
+            query: this.searchQuery,
+            vintage: this.searchVintage || undefined,
+            color: this.searchColor,
+            page: this.currentPage,
+            size: this.pageSize
+        }).subscribe({
+            next: (response) => {
+                this.bottles = response.content;
+                this.totalItems = response.totalElements;
+                this.totalPages = response.totalPages;
                 this.loading = false;
             },
             error: (err) => {
@@ -47,6 +59,7 @@ export class BottleListComponent implements OnInit {
     }
 
     onSearch(): void {
+        this.currentPage = 0; // Reset to first page on new search
         this.loadBottles();
     }
 
@@ -54,6 +67,19 @@ export class BottleListComponent implements OnInit {
         this.searchQuery = '';
         this.searchVintage = null;
         this.searchColor = '';
+        this.currentPage = 0;
+        this.pageSize = 10;
+        this.loadBottles();
+    }
+
+    onPageChange(page: number): void {
+        this.currentPage = page;
+        this.loadBottles();
+    }
+
+    onPageSizeChange(event: any): void {
+        this.pageSize = +event.target.value;
+        this.currentPage = 0;
         this.loadBottles();
     }
 
@@ -74,5 +100,32 @@ export class BottleListComponent implements OnInit {
             return (ml / 1000) + ' L';
         }
         return ml + ' ml';
+    }
+
+    get visiblePages(): number[] {
+        const pages: number[] = [];
+        const total = this.totalPages;
+        const current = this.currentPage;
+
+        if (total <= 0) return [];
+
+        // Always show 3 pages if possible: current-1, current, current+1
+        let start = Math.max(0, current - 1);
+        let end = Math.min(total - 1, current + 1);
+
+        // Adjust if we are at the beginning
+        if (current === 0) {
+            end = Math.min(total - 1, start + 2);
+        }
+
+        // Adjust if we are at the end
+        if (current === total - 1) {
+            start = Math.max(0, end - 2);
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+        return pages;
     }
 }

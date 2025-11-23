@@ -3,6 +3,8 @@ package com.cave.vin.controller;
 import com.cave.vin.domain.Bottle;
 import com.cave.vin.domain.WineColor;
 import com.cave.vin.service.BottleService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,21 +22,17 @@ public class BottleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Bottle>> getBottles(
-            @RequestParam(required = false) Long rackId,
+    public ResponseEntity<Page<Bottle>> searchBottles(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) Integer vintage,
-            @RequestParam(required = false) WineColor color) {
+            @RequestParam(required = false) WineColor color,
+            Pageable pageable) {
+        return ResponseEntity.ok(bottleService.searchBottles(query, vintage, color, pageable));
+    }
 
-        if (rackId != null) {
-            return ResponseEntity.ok(bottleService.getBottlesInRack(rackId));
-        }
-
-        if (query != null || vintage != null || color != null) {
-            return ResponseEntity.ok(bottleService.searchBottles(query, vintage, color));
-        }
-
-        return ResponseEntity.ok(bottleService.getAllBottles());
+    @GetMapping("/rack/{rackId}")
+    public ResponseEntity<List<Bottle>> getBottlesInRack(@PathVariable Long rackId) {
+        return ResponseEntity.ok(bottleService.getBottlesInRack(rackId));
     }
 
     @GetMapping("/{id}")

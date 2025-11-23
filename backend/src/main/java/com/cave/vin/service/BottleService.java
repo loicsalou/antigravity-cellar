@@ -9,6 +9,9 @@ import com.cave.vin.repository.BottleSpecification;
 import com.cave.vin.repository.RackRepository;
 import com.cave.vin.repository.WineRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +39,20 @@ public class BottleService {
         return bottleRepository.findAll();
     }
 
-    public List<Bottle> searchBottles(String query, Integer vintage, WineColor color) {
-        return bottleRepository.findAll(BottleSpecification.search(query, vintage, color));
+    public Page<Bottle> searchBottles(String query, Integer vintage, WineColor color, Pageable pageable) {
+        Specification<Bottle> spec = Specification.where(null);
+
+        if (query != null && !query.isEmpty()) {
+            spec = spec.and(BottleSpecification.hasText(query));
+        }
+        if (vintage != null) {
+            spec = spec.and(BottleSpecification.hasVintage(vintage));
+        }
+        if (color != null) {
+            spec = spec.and(BottleSpecification.hasColor(color));
+        }
+
+        return bottleRepository.findAll(spec, pageable);
     }
 
     public Bottle getBottleById(Long id) {
