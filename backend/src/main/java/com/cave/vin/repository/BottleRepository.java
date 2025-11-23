@@ -9,6 +9,10 @@ import java.util.List;
 
 @Repository
 public interface BottleRepository extends JpaRepository<Bottle, Long>, JpaSpecificationExecutor<Bottle> {
+    List<Bottle> findTop3ByOrderByPriceDesc();
+
+    List<Bottle> findTop3ByWineVintageGreaterThanOrderByWineVintageAsc(int vintage);
+
     List<Bottle> findByRackId(Long rackId);
 
     List<Bottle> findByWineId(Long wineId);

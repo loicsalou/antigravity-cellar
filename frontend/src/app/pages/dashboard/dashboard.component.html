@@ -1,0 +1,114 @@
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+        <span>📊</span> Tableau de Bord
+    </h1>
+
+    <div *ngIf="loading" class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-wine-600"></div>
+    </div>
+
+    <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+        <p class="text-red-700">{{ error }}</p>
+    </div>
+
+    <div *ngIf="stats" class="space-y-8">
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Total Bouteilles</p>
+                    <p class="text-4xl font-bold text-wine-600 mt-2">{{ stats.totalBottles }}</p>
+                </div>
+                <div class="p-3 bg-wine-50 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-wine-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+            </div>
+            <!-- Add more metrics here if needed (e.g. Total Value) -->
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Distribution by Color -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Répartition par Couleur</h2>
+                <div class="space-y-4">
+                    <div *ngFor="let item of stats.bottlesByColor | keyvalue" class="flex items-center">
+                        <span class="w-24 text-sm font-medium text-gray-600">{{ formatColor(item.key) }}</span>
+                        <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full" [ngClass]="{
+                                    'bg-red-500': item.key === 'RED',
+                                    'bg-yellow-200': item.key === 'WHITE',
+                                    'bg-pink-400': item.key === 'ROSE',
+                                    'bg-emerald-400': item.key === 'SPARKLING',
+                                    'bg-amber-400': item.key === 'YELLOW',
+                                    'bg-orange-400': item.key === 'DESSERT'
+                                 }" [style.width.%]="(item.value / stats.totalBottles) * 100"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-900">{{ item.value }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribution by Region -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Top Régions</h2>
+                <div class="space-y-4">
+                    <div *ngFor="let item of stats.bottlesByRegion | keyvalue" class="flex items-center">
+                        <span class="w-32 text-sm font-medium text-gray-600 truncate" [title]="item.key">{{ item.key
+                            }}</span>
+                        <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-wine-500 rounded-full"
+                                [style.width.%]="(item.value / stats.totalBottles) * 100"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-900">{{ item.value }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Lists -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Most Expensive -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">💎 Les Pépites (Top 3 Prix)</h2>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    <div *ngFor="let bottle of stats.mostExpensiveBottles"
+                        class="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ bottle.wine.name }}</p>
+                            <p class="text-sm text-gray-500">{{ bottle.wine.region.name }} - {{ bottle.wine.vintage }}
+                            </p>
+                        </div>
+                        <span class="font-bold text-wine-700">{{ bottle.price | currency:'EUR':'symbol':'1.0-0'
+                            }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oldest -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">🕰️ Les Ancêtres (Top 3 Âge)</h2>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    <div *ngFor="let bottle of stats.oldestBottles"
+                        class="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ bottle.wine.name }}</p>
+                            <p class="text-sm text-gray-500">{{ bottle.wine.producer.name }}</p>
+                        </div>
+                        <span
+                            class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-sm border border-amber-200">
+                            {{ bottle.wine.vintage }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,16 +17,12 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/index.html", "/assets/**", "/*.js", "/*.css",
                                                                 "/*.ico")
-                                                .permitAll() // Static
-                                                             // resources
+                                                .permitAll()
                                                 .requestMatchers("/api/user").permitAll() // Allow checking user status
                                                 .requestMatchers("/api/**").authenticated() // Protect API
                                                 .anyRequest().permitAll())
                                 .oauth2Login(oauth2 -> oauth2
-                                                .defaultSuccessUrl("http://localhost:4200/", true) // Redirect to
-                                                                                                   // frontend after
-                                                                                                   // login
-                                )
+                                                .defaultSuccessUrl("http://localhost:4200/dashboard", true))
                                 .logout(logout -> logout
                                                 .logoutUrl("/api/logout")
                                                 .logoutSuccessHandler((request, response, authentication) -> {
