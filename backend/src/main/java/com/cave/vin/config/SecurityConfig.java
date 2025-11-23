@@ -15,8 +15,13 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for development/API usage
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll() // Allow all API calls
-                        .anyRequest().permitAll() // Allow everything for now (dev mode)
+                        .requestMatchers("/", "/index.html", "/assets/**", "/*.js", "/*.css", "/*.ico").permitAll() // Static
+                                                                                                                    // resources
+                        .requestMatchers("/api/user").permitAll() // Allow checking user status
+                        .requestMatchers("/api/**").authenticated() // Protect API
+                        .anyRequest().permitAll())
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("http://localhost:4200/", true) // Redirect to frontend after login
                 );
         return http.build();
     }
