@@ -27,12 +27,17 @@ public class DashboardService {
         Map<String, Long> bottlesByRegion = allBottles.stream()
                 .collect(Collectors.groupingBy(b -> b.getWine().getRegion().getName(), Collectors.counting()));
 
+        Map<String, Long> bottlesByAppellation = allBottles.stream()
+                .filter(b -> b.getWine().getAppellation() != null)
+                .collect(Collectors.groupingBy(b -> b.getWine().getAppellation(), Collectors.counting()));
+
         Map<WineColor, Long> bottlesByColor = allBottles.stream()
                 .collect(Collectors.groupingBy(b -> b.getWine().getColor(), Collectors.counting()));
 
         List<Bottle> mostExpensive = bottleRepository.findTop3ByOrderByPriceDesc();
         List<Bottle> oldest = bottleRepository.findTop3ByWineVintageGreaterThanOrderByWineVintageAsc(0);
 
-        return new DashboardDTO(totalBottles, bottlesByRegion, bottlesByColor, mostExpensive, oldest);
+        return new DashboardDTO(totalBottles, bottlesByRegion, bottlesByAppellation, bottlesByColor, mostExpensive,
+                oldest);
     }
 }

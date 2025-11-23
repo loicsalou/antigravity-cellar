@@ -9,14 +9,16 @@ import java.util.Map;
 public class DashboardDTO {
     private long totalBottles;
     private Map<String, Long> bottlesByRegion;
+    private Map<String, Long> bottlesByAppellation;
     private Map<WineColor, Long> bottlesByColor;
     private List<Bottle> mostExpensiveBottles;
     private List<Bottle> oldestBottles;
 
-    public DashboardDTO(long totalBottles, Map<String, Long> bottlesByRegion, Map<WineColor, Long> bottlesByColor,
-            List<Bottle> mostExpensiveBottles, List<Bottle> oldestBottles) {
+    public DashboardDTO(long totalBottles, Map<String, Long> bottlesByRegion, Map<String, Long> bottlesByAppellation,
+            Map<WineColor, Long> bottlesByColor, List<Bottle> mostExpensiveBottles, List<Bottle> oldestBottles) {
         this.totalBottles = totalBottles;
         this.bottlesByRegion = bottlesByRegion;
+        this.bottlesByAppellation = bottlesByAppellation;
         this.bottlesByColor = bottlesByColor;
         this.mostExpensiveBottles = mostExpensiveBottles;
         this.oldestBottles = oldestBottles;
@@ -36,6 +38,14 @@ public class DashboardDTO {
 
     public void setBottlesByRegion(Map<String, Long> bottlesByRegion) {
         this.bottlesByRegion = bottlesByRegion;
+    }
+
+    public Map<String, Long> getBottlesByAppellation() {
+        return bottlesByAppellation;
+    }
+
+    public void setBottlesByAppellation(Map<String, Long> bottlesByAppellation) {
+        this.bottlesByAppellation = bottlesByAppellation;
     }
 
     public Map<WineColor, Long> getBottlesByColor() {

@@ -27,7 +27,6 @@
                     </svg>
                 </div>
             </div>
-            <!-- Add more metrics here if needed (e.g. Total Value) -->
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -52,18 +51,31 @@
                 </div>
             </div>
 
-            <!-- Distribution by Region -->
+            <!-- Distribution by Appellation -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Top Régions</h2>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Top Appellations</h2>
                 <div class="space-y-4">
-                    <div *ngFor="let item of stats.bottlesByRegion | keyvalue" class="flex items-center">
-                        <span class="w-32 text-sm font-medium text-gray-600 truncate" [title]="item.key">{{ item.key
+                    <div *ngFor="let item of topAppellations" class="flex items-center">
+                        <span class="w-32 text-sm font-medium text-gray-600 truncate" [title]="item.name">{{ item.name
                             }}</span>
                         <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
                             <div class="h-full bg-wine-500 rounded-full"
-                                [style.width.%]="(item.value / stats.totalBottles) * 100"></div>
+                                [style.width.%]="(item.count / stats.totalBottles) * 100"></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-900">{{ item.value }}</span>
+                        <span class="text-sm font-bold text-gray-900">{{ item.count }}</span>
+                    </div>
+
+                    <!-- Others Row -->
+                    <div *ngIf="otherAppellations.length > 0" (click)="showOthersPopup = true"
+                        class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors group">
+                        <span
+                            class="w-32 text-sm font-medium text-gray-500 group-hover:text-wine-600 underline decoration-dotted">Autres
+                            ({{ otherAppellations.length }})</span>
+                        <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gray-400 rounded-full"
+                                [style.width.%]="(othersCount / stats.totalBottles) * 100"></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-500 group-hover:text-wine-600">{{ othersCount }}</span>
                     </div>
                 </div>
             </div>
@@ -108,6 +120,47 @@
                         </span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Others Popup -->
+<div *ngIf="showOthersPopup" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+            (click)="showOthersPopup = false"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div
+            class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Autres Appellations
+                        </h3>
+                        <div class="mt-4 max-h-96 overflow-y-auto">
+                            <div class="space-y-3">
+                                <div *ngFor="let item of otherAppellations"
+                                    class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                                    <span class="text-sm text-gray-700">{{ item.name }}</span>
+                                    <span class="text-sm font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">{{
+                                        item.count }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" (click)="showOthersPopup = false"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-wine-600 text-base font-medium text-white hover:bg-wine-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    Fermer
+                </button>
             </div>
         </div>
     </div>
