@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BottleService } from '../../services/bottle.service';
 import { Bottle } from '../../models/bottle.model';
 
@@ -19,6 +20,8 @@ export class BottleListComponent implements OnInit {
     searchQuery = '';
     searchVintage: number | null = null;
     searchColor = '';
+    searchRegion = '';
+    searchAppellation = '';
 
     // Pagination
     currentPage: number = 0;
@@ -27,10 +30,18 @@ export class BottleListComponent implements OnInit {
     totalPages: number = 0;
     pageSizes: number[] = [5, 10, 15, 20, 25];
 
-    constructor(private bottleService: BottleService) { }
+    constructor(
+        private bottleService: BottleService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) { }
 
     ngOnInit(): void {
-        this.loadBottles();
+        this.route.queryParams.subscribe(params => {
+            this.searchRegion = params['region'] || '';
+            this.searchAppellation = params['appellation'] || '';
+            this.loadBottles();
+        });
     }
 
     loadBottles(): void {
@@ -41,6 +52,8 @@ export class BottleListComponent implements OnInit {
             query: this.searchQuery,
             vintage: this.searchVintage || undefined,
             color: this.searchColor,
+            region: this.searchRegion || undefined,
+            appellation: this.searchAppellation || undefined,
             page: this.currentPage,
             size: this.pageSize
         }).subscribe({
@@ -60,6 +73,15 @@ export class BottleListComponent implements OnInit {
 
     onSearch(): void {
         this.currentPage = 0; // Reset to first page on new search
+        // Clear region/appellation filters when searching manually
+        this.searchRegion = '';
+        this.searchAppellation = '';
+        // Update URL to remove query params
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { region: null, appellation: null },
+            queryParamsHandling: 'merge'
+        });
         this.loadBottles();
     }
 

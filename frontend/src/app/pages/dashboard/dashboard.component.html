@@ -55,29 +55,44 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Top Régions</h2>
                 <div class="space-y-4">
-                    <div *ngFor="let item of topRegions" (click)="openRegionPopup(item.name)"
-                        class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors group">
-                        <span
-                            class="w-32 text-sm font-medium text-gray-600 truncate group-hover:text-wine-600 underline decoration-dotted"
-                            [title]="item.name">{{ item.name }}</span>
-                        <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-wine-500 rounded-full"
-                                [style.width.%]="(item.count / stats.totalBottles) * 100"></div>
+                    <div *ngFor="let item of topRegions"
+                        class="flex items-center justify-between p-2 hover:bg-gray-50 rounded transition-colors group">
+                        <div class="flex items-center flex-1 min-w-0 mr-4">
+                            <span class="w-32 text-sm font-medium text-gray-600 truncate" [title]="item.name">{{
+                                item.name }}</span>
+                            <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-wine-500 rounded-full"
+                                    [style.width.%]="(item.count / stats.totalBottles) * 100">
+                                </div>
+                            </div>
+                            <span class="text-sm font-bold text-gray-900">{{ item.count
+                                }}</span>
                         </div>
-                        <span class="text-sm font-bold text-gray-900 group-hover:text-wine-600">{{ item.count }}</span>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a [routerLink]="['/bottles']" [queryParams]="{ region: item.name }"
+                                class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded font-medium transition-colors">Voir</a>
+                            <button (click)="openRegionPopup(item.name)"
+                                class="text-xs bg-wine-50 hover:bg-wine-100 text-wine-700 px-3 py-1 rounded font-medium transition-colors">Détailler</button>
+                        </div>
                     </div>
 
                     <!-- Others Row -->
-                    <div *ngIf="otherRegions.length > 0" (click)="openOthersPopup()"
-                        class="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors group">
-                        <span
-                            class="w-32 text-sm font-medium text-gray-500 group-hover:text-wine-600 underline decoration-dotted">Autres
-                            ({{ otherRegions.length }})</span>
-                        <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-gray-400 rounded-full"
-                                [style.width.%]="(othersCount / stats.totalBottles) * 100"></div>
+                    <div *ngIf="otherRegions.length > 0"
+                        class="flex items-center justify-between p-2 hover:bg-gray-50 rounded transition-colors group">
+                        <div class="flex items-center flex-1 min-w-0 mr-4">
+                            <span class="w-32 text-sm font-medium text-gray-500 underline decoration-dotted">Autres
+                                ({{ otherRegions.length }})</span>
+                            <div class="flex-1 mx-4 h-4 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-gray-400 rounded-full"
+                                    [style.width.%]="(othersCount / stats.totalBottles) * 100"></div>
+                            </div>
+                            <span class="text-sm font-bold text-gray-500">{{ othersCount
+                                }}</span>
                         </div>
-                        <span class="text-sm font-bold text-gray-500 group-hover:text-wine-600">{{ othersCount }}</span>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button (click)="openOthersPopup()"
+                                class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded font-medium transition-colors">Détailler</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,12 +162,16 @@
                         </h3>
                         <div class="mt-4 max-h-96 overflow-y-auto">
                             <div class="space-y-3">
-                                <div *ngFor="let item of popupItems"
-                                    class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-                                    <span class="text-sm text-gray-700">{{ item.name }}</span>
+                                <a *ngFor="let item of popupItems" [routerLink]="['/bottles']"
+                                    [queryParams]="{ appellation: item.name }"
+                                    class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer group transition-colors">
+                                    <span
+                                        class="text-sm text-gray-700 group-hover:text-wine-700 group-hover:underline">{{
+                                        item.name
+                                        }}</span>
                                     <span class="text-sm font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">{{
                                         item.count }}</span>
-                                </div>
+                                </a>
                                 <div *ngIf="popupItems.length === 0" class="text-center text-gray-500 italic py-4">
                                     Aucune appellation trouvée.
                                 </div>

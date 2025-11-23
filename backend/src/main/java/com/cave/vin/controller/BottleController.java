@@ -26,8 +26,10 @@ public class BottleController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) Integer vintage,
             @RequestParam(required = false) WineColor color,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String appellation,
             Pageable pageable) {
-        return ResponseEntity.ok(bottleService.searchBottles(query, vintage, color, pageable));
+        return ResponseEntity.ok(bottleService.searchBottles(query, vintage, color, region, appellation, pageable));
     }
 
     @GetMapping("/rack/{rackId}")

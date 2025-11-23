@@ -54,7 +54,29 @@ public class BottleSpecification {
         };
     }
 
-    public static Specification<Bottle> search(String query, Integer vintage, WineColor color) {
+    public static Specification<Bottle> hasRegion(String regionName) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (!StringUtils.hasText(regionName)) {
+                return criteriaBuilder.conjunction();
+            }
+            Join<Bottle, Wine> wineJoin = root.join("wine");
+            Join<Wine, com.cave.vin.domain.Region> regionJoin = wineJoin.join("region");
+            return criteriaBuilder.equal(criteriaBuilder.lower(regionJoin.get("name")), regionName.toLowerCase());
+        };
+    }
+
+    public static Specification<Bottle> hasAppellation(String appellation) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (!StringUtils.hasText(appellation)) {
+                return criteriaBuilder.conjunction();
+            }
+            Join<Bottle, Wine> wineJoin = root.join("wine");
+            return criteriaBuilder.equal(criteriaBuilder.lower(wineJoin.get("appellation")), appellation.toLowerCase());
+        };
+    }
+
+    public static Specification<Bottle> search(String query, Integer vintage, WineColor color, String region,
+            String appellation) {
         Specification<Bottle> spec = Specification.where(null);
         if (StringUtils.hasText(query)) {
             spec = spec.and(hasText(query));
@@ -64,6 +86,12 @@ public class BottleSpecification {
         }
         if (color != null) {
             spec = spec.and(hasColor(color));
+        }
+        if (StringUtils.hasText(region)) {
+            spec = spec.and(hasRegion(region));
+        }
+        if (StringUtils.hasText(appellation)) {
+            spec = spec.and(hasAppellation(appellation));
         }
         return spec;
     }

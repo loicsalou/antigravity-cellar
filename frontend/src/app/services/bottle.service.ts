@@ -11,11 +11,13 @@ export class BottleService {
 
     constructor(private http: HttpClient) { }
 
-    getAllBottles(params?: { query?: string; vintage?: number; color?: string; page?: number; size?: number }): Observable<any> {
+    getAllBottles(params?: { query?: string; vintage?: number; color?: string; region?: string; appellation?: string; page?: number; size?: number }): Observable<any> {
         let queryParams = new HttpParams();
         if (params?.query) queryParams = queryParams.set('query', params.query);
         if (params?.vintage) queryParams = queryParams.set('vintage', params.vintage);
         if (params?.color) queryParams = queryParams.set('color', params.color);
+        if (params?.region) queryParams = queryParams.set('region', params.region);
+        if (params?.appellation) queryParams = queryParams.set('appellation', params.appellation);
         if (params?.page !== undefined) queryParams = queryParams.set('page', params.page);
         if (params?.size !== undefined) queryParams = queryParams.set('size', params.size);
 

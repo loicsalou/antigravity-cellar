@@ -39,19 +39,9 @@ public class BottleService {
         return bottleRepository.findAll();
     }
 
-    public Page<Bottle> searchBottles(String query, Integer vintage, WineColor color, Pageable pageable) {
-        Specification<Bottle> spec = Specification.where(null);
-
-        if (query != null && !query.isEmpty()) {
-            spec = spec.and(BottleSpecification.hasText(query));
-        }
-        if (vintage != null) {
-            spec = spec.and(BottleSpecification.hasVintage(vintage));
-        }
-        if (color != null) {
-            spec = spec.and(BottleSpecification.hasColor(color));
-        }
-
+    public Page<Bottle> searchBottles(String query, Integer vintage, WineColor color, String region, String appellation,
+            Pageable pageable) {
+        Specification<Bottle> spec = BottleSpecification.search(query, vintage, color, region, appellation);
         return bottleRepository.findAll(spec, pageable);
     }
 

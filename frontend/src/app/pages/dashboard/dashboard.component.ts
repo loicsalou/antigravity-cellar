@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 
 interface DashboardStats {
     totalBottles: number;
@@ -14,7 +15,7 @@ interface DashboardStats {
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
