@@ -19,8 +19,8 @@ public class DashboardService {
                 this.bottleRepository = bottleRepository;
         }
 
-        public DashboardDTO getDashboardStats() {
-                List<Bottle> allBottles = bottleRepository.findAll();
+        public DashboardDTO getDashboardStats(String userEmail) {
+                List<Bottle> allBottles = bottleRepository.findByCellar_User_Email(userEmail);
 
                 long totalBottles = allBottles.size();
 
@@ -38,8 +38,10 @@ public class DashboardService {
                 Map<WineColor, Long> bottlesByColor = allBottles.stream()
                                 .collect(Collectors.groupingBy(b -> b.getWine().getColor(), Collectors.counting()));
 
-                List<Bottle> mostExpensive = bottleRepository.findTop3ByOrderByPriceDesc();
-                List<Bottle> oldest = bottleRepository.findTop3ByWineVintageGreaterThanOrderByWineVintageAsc(0);
+                List<Bottle> mostExpensive = bottleRepository.findTop3ByCellar_User_EmailOrderByPriceDesc(userEmail);
+                List<Bottle> oldest = bottleRepository
+                                .findTop3ByCellar_User_EmailAndWineVintageGreaterThanOrderByWineVintageAsc(userEmail,
+                                                0);
 
                 return new DashboardDTO(totalBottles, bottlesByRegion, regionAppellationStats, bottlesByColor,
                                 mostExpensive, oldest);

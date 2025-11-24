@@ -6,5 +6,6 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 export const routes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'dashboard', component: DashboardComponent },
-    { path: 'bottles', component: BottleListComponent }
+    { path: 'bottles', component: BottleListComponent },
+    { path: 'admin', loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent) }
 ];

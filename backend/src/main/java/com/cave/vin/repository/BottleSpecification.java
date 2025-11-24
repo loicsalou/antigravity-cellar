@@ -19,15 +19,15 @@ public class BottleSpecification {
             if (!StringUtils.hasText(query)) {
                 return criteriaBuilder.conjunction();
             }
-            Join<Bottle, Wine> wineJoin = root.join("wine");
-            Join<Wine, Producer> producerJoin = wineJoin.join("producer");
             String likePattern = "%" + query.toLowerCase() + "%";
 
-            Predicate wineNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(wineJoin.get("name")),
+            Predicate wineNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("wine").get("name")),
                     likePattern);
-            Predicate appellationPredicate = criteriaBuilder.like(criteriaBuilder.lower(wineJoin.get("appellation")),
+            Predicate appellationPredicate = criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("wine").get("appellation")),
                     likePattern);
-            Predicate producerNamePredicate = criteriaBuilder.like(criteriaBuilder.lower(producerJoin.get("name")),
+            Predicate producerNamePredicate = criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("wine").get("producer").get("name")),
                     likePattern);
 
             return criteriaBuilder.or(wineNamePredicate, appellationPredicate, producerNamePredicate);
@@ -39,8 +39,7 @@ public class BottleSpecification {
             if (vintage == null) {
                 return criteriaBuilder.conjunction();
             }
-            Join<Bottle, Wine> wineJoin = root.join("wine");
-            return criteriaBuilder.equal(wineJoin.get("vintage"), vintage);
+            return criteriaBuilder.equal(root.get("wine").get("vintage"), vintage);
         };
     }
 
@@ -49,8 +48,7 @@ public class BottleSpecification {
             if (color == null) {
                 return criteriaBuilder.conjunction();
             }
-            Join<Bottle, Wine> wineJoin = root.join("wine");
-            return criteriaBuilder.equal(wineJoin.get("color"), color);
+            return criteriaBuilder.equal(root.get("wine").get("color"), color);
         };
     }
 
@@ -59,9 +57,8 @@ public class BottleSpecification {
             if (!StringUtils.hasText(regionName)) {
                 return criteriaBuilder.conjunction();
             }
-            Join<Bottle, Wine> wineJoin = root.join("wine");
-            Join<Wine, com.cave.vin.domain.Region> regionJoin = wineJoin.join("region");
-            return criteriaBuilder.equal(criteriaBuilder.lower(regionJoin.get("name")), regionName.toLowerCase());
+            return criteriaBuilder.equal(criteriaBuilder.lower(root.get("wine").get("region").get("name")),
+                    regionName.toLowerCase());
         };
     }
 
@@ -70,14 +67,26 @@ public class BottleSpecification {
             if (!StringUtils.hasText(appellation)) {
                 return criteriaBuilder.conjunction();
             }
-            Join<Bottle, Wine> wineJoin = root.join("wine");
-            return criteriaBuilder.equal(criteriaBuilder.lower(wineJoin.get("appellation")), appellation.toLowerCase());
+            return criteriaBuilder.equal(criteriaBuilder.lower(root.get("wine").get("appellation")),
+                    appellation.toLowerCase());
+        };
+    }
+
+    public static Specification<Bottle> hasUserEmail(String email) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (!StringUtils.hasText(email)) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("cellar").get("user").get("email"), email);
         };
     }
 
     public static Specification<Bottle> search(String query, Integer vintage, WineColor color, String region,
-            String appellation) {
+            String appellation, String userEmail) {
         Specification<Bottle> spec = Specification.where(null);
+        if (StringUtils.hasText(userEmail)) {
+            spec = spec.and(hasUserEmail(userEmail));
+        }
         if (StringUtils.hasText(query)) {
             spec = spec.and(hasText(query));
         }

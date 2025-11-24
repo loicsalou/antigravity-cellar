@@ -26,19 +26,30 @@ public class CsvImportService {
     private final ProducerRepository producerRepository;
     private final RegionRepository regionRepository;
     private final CountryRepository countryRepository;
+    private final CellarRepository cellarRepository;
 
     public CsvImportService(BottleRepository bottleRepository, WineRepository wineRepository,
             ProducerRepository producerRepository, RegionRepository regionRepository,
-            CountryRepository countryRepository) {
+            CountryRepository countryRepository, CellarRepository cellarRepository) {
         this.bottleRepository = bottleRepository;
         this.wineRepository = wineRepository;
         this.producerRepository = producerRepository;
         this.regionRepository = regionRepository;
         this.countryRepository = countryRepository;
+        this.cellarRepository = cellarRepository;
     }
 
     @Transactional
-    public void importCsv(MultipartFile file) throws IOException, CsvException {
+    public void importCsv(MultipartFile file, User user, String cellarName) throws IOException, CsvException {
+        // Find or Create Cellar
+        Cellar cellar = cellarRepository.findByNameAndUser(cellarName, user)
+                .orElseGet(() -> {
+                    Cellar c = new Cellar();
+                    c.setName(cellarName);
+                    c.setUser(user);
+                    return cellarRepository.save(c);
+                });
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             // Configure CSV reader with tab separator as seen in the file
             CSVReader csvReader = new CSVReaderBuilder(reader)
@@ -49,12 +60,12 @@ public class CsvImportService {
             List<String[]> records = csvReader.readAll();
 
             for (String[] record : records) {
-                processRecord(record);
+                processRecord(record, cellar);
             }
         }
     }
 
-    private void processRecord(String[] record) {
+    private void processRecord(String[] record, Cellar cellar) {
         // Mapping based on the CSV structure:
         // 0: nomCru (Producer - Wine Name)
         // 1: country_label
@@ -110,7 +121,7 @@ public class CsvImportService {
         Wine wine = findOrCreateWine(wineName, producer, region, colorLabel, vintageStr, appellation);
 
         // 6. Create Bottles
-        createBottles(wine, quantity, volumeStr, dateAchatStr, priceStr);
+        createBottles(wine, quantity, volumeStr, dateAchatStr, priceStr, cellar);
     }
 
     private Country findOrCreateCountry(String name) {
@@ -168,7 +179,8 @@ public class CsvImportService {
         return wineRepository.save(wine);
     }
 
-    private void createBottles(Wine wine, int quantity, String volumeStr, String dateAchatStr, String priceStr) {
+    private void createBottles(Wine wine, int quantity, String volumeStr, String dateAchatStr, String priceStr,
+            Cellar cellar) {
         Integer volume = parseVolume(volumeStr);
         LocalDate purchaseDate = parseDate(dateAchatStr);
         BigDecimal price = parsePrice(priceStr);
@@ -179,6 +191,7 @@ public class CsvImportService {
             bottle.setVolume(volume);
             bottle.setPurchaseDate(purchaseDate);
             bottle.setPrice(price);
+            bottle.setCellar(cellar);
             // Rack is null by default
             bottleRepository.save(bottle);
         }

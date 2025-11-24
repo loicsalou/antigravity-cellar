@@ -17,7 +17,12 @@ public class DashboardController {
     }
 
     @GetMapping
-    public DashboardDTO getDashboard() {
-        return dashboardService.getDashboardStats();
+    public DashboardDTO getDashboard(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.oauth2.core.user.OAuth2User principal) {
+        if (principal == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+        String email = principal.getAttribute("email");
+        return dashboardService.getDashboardStats(email);
     }
 }

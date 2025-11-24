@@ -10,6 +10,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+        private final com.cave.vin.service.CustomOAuth2UserService customOAuth2UserService;
+
+        public SecurityConfig(com.cave.vin.service.CustomOAuth2UserService customOAuth2UserService) {
+                this.customOAuth2UserService = customOAuth2UserService;
+        }
+
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
@@ -22,6 +28,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/**").authenticated() // Protect API
                                                 .anyRequest().permitAll())
                                 .oauth2Login(oauth2 -> oauth2
+                                                .userInfoEndpoint(userInfo -> userInfo
+                                                                .userService(customOAuth2UserService))
                                                 .defaultSuccessUrl("http://localhost:4200/dashboard", true))
                                 .logout(logout -> logout
                                                 .logoutUrl("/api/logout")

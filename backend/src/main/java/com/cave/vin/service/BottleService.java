@@ -40,8 +40,8 @@ public class BottleService {
     }
 
     public Page<Bottle> searchBottles(String query, Integer vintage, WineColor color, String region, String appellation,
-            Pageable pageable) {
-        Specification<Bottle> spec = BottleSpecification.search(query, vintage, color, region, appellation);
+            Pageable pageable, String userEmail) {
+        Specification<Bottle> spec = BottleSpecification.search(query, vintage, color, region, appellation, userEmail);
         return bottleRepository.findAll(spec, pageable);
     }
 

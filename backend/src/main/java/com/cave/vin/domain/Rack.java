@@ -21,6 +21,7 @@ public class Rack {
     @JoinColumn(name = "cellar_id")
     private Cellar cellar;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "rack", cascade = CascadeType.ALL)
     private List<Bottle> bottles = new ArrayList<>();
 

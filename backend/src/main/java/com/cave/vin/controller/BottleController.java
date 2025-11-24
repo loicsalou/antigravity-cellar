@@ -28,8 +28,14 @@ public class BottleController {
             @RequestParam(required = false) WineColor color,
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String appellation,
-            Pageable pageable) {
-        return ResponseEntity.ok(bottleService.searchBottles(query, vintage, color, region, appellation, pageable));
+            Pageable pageable,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.oauth2.core.user.OAuth2User principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        String email = principal.getAttribute("email");
+        return ResponseEntity
+                .ok(bottleService.searchBottles(query, vintage, color, region, appellation, pageable, email));
     }
 
     @GetMapping("/rack/{rackId}")

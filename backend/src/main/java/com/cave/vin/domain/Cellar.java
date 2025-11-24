@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Cellar {
 
     @Id
@@ -17,8 +18,13 @@ public class Cellar {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "cellar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rack> racks = new ArrayList<>();
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @OneToMany(mappedBy = "cellar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bottle> bottles = new ArrayList<>();
 
     public Cellar() {
     }
@@ -53,5 +59,13 @@ public class Cellar {
 
     public void setRacks(List<Rack> racks) {
         this.racks = racks;
+    }
+
+    public List<Bottle> getBottles() {
+        return bottles;
+    }
+
+    public void setBottles(List<Bottle> bottles) {
+        this.bottles = bottles;
     }
 }

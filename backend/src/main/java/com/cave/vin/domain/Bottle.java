@@ -19,6 +19,10 @@ public class Bottle {
     @JoinColumn(name = "rack_id")
     private Rack rack;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cellar_id")
+    private Cellar cellar;
+
     // Position on the rack photo (percentage or pixels)
     private Double positionX;
     private Double positionY;
@@ -56,6 +60,14 @@ public class Bottle {
 
     public void setRack(Rack rack) {
         this.rack = rack;
+    }
+
+    public Cellar getCellar() {
+        return cellar;
+    }
+
+    public void setCellar(Cellar cellar) {
+        this.cellar = cellar;
     }
 
     public Double getPositionX() {

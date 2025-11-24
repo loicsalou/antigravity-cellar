@@ -16,4 +16,10 @@ public interface BottleRepository extends JpaRepository<Bottle, Long>, JpaSpecif
     List<Bottle> findByRackId(Long rackId);
 
     List<Bottle> findByWineId(Long wineId);
+
+    List<Bottle> findByCellar_User_Email(String email);
+
+    List<Bottle> findTop3ByCellar_User_EmailOrderByPriceDesc(String email);
+
+    List<Bottle> findTop3ByCellar_User_EmailAndWineVintageGreaterThanOrderByWineVintageAsc(String email, int vintage);
 }
