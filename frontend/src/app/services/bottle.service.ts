@@ -23,4 +23,8 @@ export class BottleService {
 
         return this.http.get<any>(this.apiUrl, { params: queryParams });
     }
+
+    addBottleBatch(request: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/batch`, request);
+    }
 }

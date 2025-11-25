@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bottles")
-@CrossOrigin(origins = "http://localhost:4200")
 public class BottleController {
 
     private final BottleService bottleService;
@@ -54,6 +53,17 @@ public class BottleController {
             @RequestParam Long rackId,
             @RequestParam Long wineId) {
         return ResponseEntity.ok(bottleService.addBottle(bottle, rackId, wineId));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<List<Bottle>> addBottleBatch(
+            @RequestBody com.cave.vin.dto.AddBottleBatchRequest request,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.oauth2.core.user.OAuth2User principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        String email = principal.getAttribute("email");
+        return ResponseEntity.ok(bottleService.addBottleBatch(request, email));
     }
 
     @PutMapping("/{id}/move")

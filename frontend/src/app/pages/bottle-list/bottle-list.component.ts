@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BottleService } from '../../services/bottle.service';
 import { Bottle } from '../../models/bottle.model';
 
 @Component({
     selector: 'app-bottle-list',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RouterLink],
     templateUrl: './bottle-list.component.html',
 })
 export class BottleListComponent implements OnInit {

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { Wine } from '../models/models';
 
 @Injectable({
@@ -11,7 +11,13 @@ export class WineService {
   private apiUrl = 'http://localhost:8080/api/wines';
 
   getAllWines(): Observable<Wine[]> {
-    return this.http.get<Wine[]>(this.apiUrl);
+    return this.http.get<Wine[]>(this.apiUrl).pipe(
+      tap(wines => console.log(wines)),
+      catchError(error => {
+        console.error('Error fetching wines:', error);
+        return of([]);
+      })
+    );
   }
 
   getWine(id: number): Observable<Wine> {

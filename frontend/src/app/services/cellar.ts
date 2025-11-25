@@ -10,11 +10,8 @@ export class CellarService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/api/cellars';
 
-  // TODO: Remove userId hardcoding once Auth is implemented
-  private defaultUserId = 1;
-
   getUserCellars(): Observable<Cellar[]> {
-    return this.http.get<Cellar[]>(`${this.apiUrl}?userId=${this.defaultUserId}`);
+    return this.http.get<Cellar[]>(this.apiUrl);
   }
 
   getCellar(id: number): Observable<Cellar> {
@@ -22,7 +19,7 @@ export class CellarService {
   }
 
   createCellar(cellar: Partial<Cellar>): Observable<Cellar> {
-    return this.http.post<Cellar>(`${this.apiUrl}?userId=${this.defaultUserId}`, cellar);
+    return this.http.post<Cellar>(this.apiUrl, cellar);
   }
 
   deleteCellar(id: number): Observable<void> {

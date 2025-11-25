@@ -3,13 +3,14 @@ package com.cave.vin.controller;
 import com.cave.vin.domain.Cellar;
 import com.cave.vin.service.CellarService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cellars")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CellarController {
 
     private final CellarService cellarService;
@@ -18,10 +19,10 @@ public class CellarController {
         this.cellarService = cellarService;
     }
 
-    // TODO: Remove userId param once Auth is implemented
     @GetMapping
-    public ResponseEntity<List<Cellar>> getUserCellars(@RequestParam Long userId) {
-        return ResponseEntity.ok(cellarService.getCellarsForUser(userId));
+    public ResponseEntity<List<Cellar>> getUserCellars(@AuthenticationPrincipal OAuth2User principal) {
+        String email = principal.getAttribute("email");
+        return ResponseEntity.ok(cellarService.getCellarsForUser(email));
     }
 
     @GetMapping("/{id}")
@@ -30,8 +31,10 @@ public class CellarController {
     }
 
     @PostMapping
-    public ResponseEntity<Cellar> createCellar(@RequestParam Long userId, @RequestBody Cellar cellar) {
-        return ResponseEntity.ok(cellarService.createCellar(userId, cellar));
+    public ResponseEntity<Cellar> createCellar(@AuthenticationPrincipal OAuth2User principal,
+            @RequestBody Cellar cellar) {
+        String email = principal.getAttribute("email");
+        return ResponseEntity.ok(cellarService.createCellar(email, cellar));
     }
 
     @DeleteMapping("/{id}")

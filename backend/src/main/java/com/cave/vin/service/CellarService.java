@@ -21,8 +21,10 @@ public class CellarService {
         this.userRepository = userRepository;
     }
 
-    public List<Cellar> getCellarsForUser(Long userId) {
-        return cellarRepository.findByUserId(userId);
+    public List<Cellar> getCellarsForUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+        return cellarRepository.findByUserId(user.getId());
     }
 
     public Cellar getCellarById(Long id) {
@@ -31,9 +33,9 @@ public class CellarService {
     }
 
     @Transactional
-    public Cellar createCellar(Long userId, Cellar cellar) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+    public Cellar createCellar(String email, Cellar cellar) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
         cellar.setUser(user);
         return cellarRepository.save(cellar);
     }

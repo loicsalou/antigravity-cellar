@@ -18,7 +18,9 @@ public class WineService {
     }
 
     public List<Wine> getAllWines() {
-        return wineRepository.findAll();
+        var list = wineRepository.findAll();
+        System.out.println("Nombre de vins retournés : " + list.size());
+        return list;
     }
 
     public Wine getWineById(Long id) {

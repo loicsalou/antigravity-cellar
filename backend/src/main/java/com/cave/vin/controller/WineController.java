@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/wines")
-@CrossOrigin(origins = "http://localhost:4200")
 public class WineController {
 
     private final WineService wineService;

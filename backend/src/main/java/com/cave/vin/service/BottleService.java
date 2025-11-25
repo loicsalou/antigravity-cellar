@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,12 +24,14 @@ public class BottleService {
     private final BottleRepository bottleRepository;
     private final RackRepository rackRepository;
     private final WineRepository wineRepository;
+    private final com.cave.vin.repository.CellarRepository cellarRepository;
 
     public BottleService(BottleRepository bottleRepository, RackRepository rackRepository,
-            WineRepository wineRepository) {
+            WineRepository wineRepository, com.cave.vin.repository.CellarRepository cellarRepository) {
         this.bottleRepository = bottleRepository;
         this.rackRepository = rackRepository;
         this.wineRepository = wineRepository;
+        this.cellarRepository = cellarRepository;
     }
 
     public List<Bottle> getBottlesInRack(Long rackId) {
@@ -60,6 +63,48 @@ public class BottleService {
         bottle.setRack(rack);
         bottle.setWine(wine);
         return bottleRepository.save(bottle);
+    }
+
+    @Transactional
+    public List<Bottle> addBottleBatch(com.cave.vin.dto.AddBottleBatchRequest request, String userEmail) {
+        // Validate quantity
+        if (request.getQuantity() == null || request.getQuantity() < 1) {
+            throw new IllegalArgumentException("Quantity must be at least 1");
+        }
+
+        // Find wine
+        Wine wine = wineRepository.findById(request.getWineId())
+                .orElseThrow(() -> new EntityNotFoundException("Wine not found with id: " + request.getWineId()));
+
+        // Find cellar and verify it belongs to the user
+        com.cave.vin.domain.Cellar cellar = cellarRepository.findById(request.getCellarId())
+                .orElseThrow(() -> new EntityNotFoundException("Cellar not found with id: " + request.getCellarId()));
+
+        if (!cellar.getUser().getEmail().equals(userEmail)) {
+            throw new IllegalArgumentException("Cellar does not belong to the current user");
+        }
+
+        // Find rack if provided
+        Rack rack = null;
+        if (request.getRackId() != null) {
+            rack = rackRepository.findById(request.getRackId())
+                    .orElseThrow(() -> new EntityNotFoundException("Rack not found with id: " + request.getRackId()));
+        }
+
+        // Create bottles
+        List<Bottle> bottles = new ArrayList<>();
+        for (int i = 0; i < request.getQuantity(); i++) {
+            Bottle bottle = new Bottle();
+            bottle.setWine(wine);
+            bottle.setCellar(cellar);
+            bottle.setRack(rack);
+            bottle.setPrice(request.getPrice());
+            bottle.setPurchaseDate(request.getPurchaseDate());
+            bottle.setVolume(request.getVolume());
+            bottles.add(bottleRepository.save(bottle));
+        }
+
+        return bottles;
     }
 
     @Transactional
